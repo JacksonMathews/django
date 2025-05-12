@@ -28,7 +28,7 @@ jobs:
             # Pick random UA type
             UA=${UA_TYPES[$((RANDOM % ${#UA_TYPES[@]}))]}
 
-            # Random sleep 1–10 s
+            # Random sleep 1–10 s before request
             SLEEP_BEFORE=$((RANDOM % 10 + 1))
             echo "[$i] Sleeping ${SLEEP_BEFORE}s before request..."
             sleep "${SLEEP_BEFORE}"
@@ -41,11 +41,10 @@ jobs:
               -H "x-oxylabs-user-agent-type: $UA" \
               -H "X-Oxylabs-Render: html" \
               "$TARGET_URL"
+            
+            # Wait 5 seconds for any redirects to complete before next request
+            echo "[$i] Waiting 5s for redirects to settle..."
+            sleep 5
 
             echo "[$i] Done. Rotated IP on each connection by default."
-
-            # Optional post-request pause
-            POST_SLEEP=$((RANDOM % 10 + 1))
-            echo "[$i] Sleeping ${POST_SLEEP}s after request..."
-            sleep "${POST_SLEEP}"
           done
