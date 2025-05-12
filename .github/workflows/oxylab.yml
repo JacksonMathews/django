@@ -1,0 +1,51 @@
+# .github/workflows/oxylabs-scrape.yml
+name: Oxylabs Continuous Scraper
+
+on:
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Oxylabs scraping loop
+        run: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          USER="Techxyz1_bhJus"
+          PASS="Techxyz1_bhJus"
+          PROXY="realtime.oxylabs.io:60000"
+          TARGET_URL="https://ptp.today/111494"
+
+          # Available UA types supported by Oxylabs
+          UA_TYPES=(desktop_chrome desktop_firefox mobile_chrome mobile_safari)
+
+          for i in $(seq 1 5000); do
+            # Pick random UA type
+            UA=${UA_TYPES[$((RANDOM % ${#UA_TYPES[@]}))]}
+
+            # Random sleep 1–10 s
+            SLEEP_BEFORE=$((RANDOM % 10 + 1))
+            echo "[$i] Sleeping ${SLEEP_BEFORE}s before request..."
+            sleep "${SLEEP_BEFORE}"
+
+            echo "[$i] Requesting $TARGET_URL via Oxylabs proxy ($PROXY) as $UA"
+            curl -k -L \
+              -x "https://$PROXY" \
+              -U "$USER:$PASS" \
+              -H "x-oxylabs-geo-location: Russia" \
+              -H "x-oxylabs-user-agent-type: $UA" \
+              -H "X-Oxylabs-Render: html" \
+              "$TARGET_URL"
+
+            echo "[$i] Done. Rotated IP on each connection by default."
+
+            # Optional post-request pause
+            POST_SLEEP=$((RANDOM % 10 + 1))
+            echo "[$i] Sleeping ${POST_SLEEP}s after request..."
+            sleep "${POST_SLEEP}"
+          done
