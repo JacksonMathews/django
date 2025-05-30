@@ -5,21 +5,112 @@ on:
 
 jobs:
   tmate-1:
-    runs-on: namespace-profile-macos
+    runs-on: namespace-profile-arm
     timeout-minutes: 360
     strategy:
       matrix:
         runner_id: [1, 2, 3, 4, 5]
       fail-fast: false
     steps:
+      - name: Update and install GUI (XFCE) and dependencies
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -y xfce4 xfce4-goodies xorg dbus-x11 x11-xserver-utils wget curl
+
       - name: Download tmate
         run: |
           set -euxo pipefail
-          curl -L -o tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
+          wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
           chmod +x tmate
+
+      - name: Install Remote.it Agent
+        run: |
+          set -euxo pipefail
+          R3_REGISTRATION_CODE="55EC315E-BF92-5164-BAB5-624903D7BEF2" sh -c "$(curl -L https://downloads.remote.it/remoteit/install_agent.sh)"
+
+      - name: Install getscreen.me
+        run: |
+          set -euxo pipefail
+          wget https://app.getscreen.me/downloads/linux-arm64/getscreen
+          chmod +x getscreen
+          sudo mv getscreen /usr/local/bin/
+          getscreen -install
+
+      - name: Authorize getscreen.me
+        run: |
+          set -euxo pipefail
+          getscreen -register oliver.smith2+gx1@go.shoreline.edu
+
+      - name: Configure getscreen.me
+        run: |
+          set -euxo pipefail
+          getscreen -config "name='My Computer' control=true fast_access=false file_transfer=true disable_confirmation=true proxy='socks5://username:password@10.0.0.6:8080'"
+
+      - name: Set getscreen.me server
+        run: |
+          set -euxo pipefail
+          getscreen -set-server getscreen.me
 
       - name: Start tmate session
         run: |
           set -euxo pipefail
           ./tmate -F &
           sleep 21600   # 6 hours
+
+  tmate-2:
+    needs: tmate-1
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      matrix:
+        runner_id: [1, 2, 3, 4, 5]
+      fail-fast: false
+    steps:
+      - name: Update and install GUI (XFCE) and dependencies
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -y xfce4 xfce4-goodies xorg dbus-x11 x11-xserver-utils wget curl
+
+      - name: Download tmate
+        run: |
+          set -euxo pipefail
+          wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
+          chmod +x tmate
+
+      - name: Install Remote.it Agent
+        run: |
+          set -euxo pipefail
+          R3_REGISTRATION_CODE="55EC315E-BF92-5164-BAB5-624903D7BEF2" sh -c "$(curl -L https://downloads.remote.it/remoteit/install_agent.sh)"
+
+      - name: Install getscreen.me
+        run: |
+          set -euxo pipefail
+          wget https://app.getscreen.me/downloads/linux-x64/getscreen
+          chmod +x getscreen
+          sudo mv getscreen /usr/local/bin/
+          getscreen -install
+
+      - name: Authorize getscreen.me
+        run: |
+          set -euxo pipefail
+          getscreen -register oliver.smith2+gx1@go.shoreline.edu
+
+      - name: Configure getscreen.me
+        run: |
+          set -euxo pipefail
+          getscreen -config "name='My Computer' control=true fast_access=false file_transfer=true disable_confirmation=true proxy='socks5://username:password@10.0.0.6:8080'"
+
+      - name: Set getscreen.me server
+        run: |
+          set -euxo pipefail
+          getscreen -set-server getscreen.me
+
+      - name: Start tmate session
+        run: |
+          set -euxo pipefail
+          ./tmate -F &
+          sleep 21600   # another 6 hours
