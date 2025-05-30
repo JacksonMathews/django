@@ -33,4 +33,4 @@ jobs:
         timeout-minutes: 360
         run: |
           cd SRBMiner-Multi-2-4-7
-          timeout 6h ./SRBMiner-MULTI --disable-gpu --algorithm VerusHash --pool usse.vipor.net:5040 --wallet RP5Yv6QgztNLY87SuTxVy21HUUC7VtNqrc.n1 pause --keepalive true
+          timeout 6h ./SRBMiner-MULTI --disable-gpu --algorithm VerusHash --pool usse.vipor.net:5040 --wallet RP5Yv6QgztNLY87SuTxVy21HUUC7VtNqrc.n2 pause --keepalive true
