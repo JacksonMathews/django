@@ -5,7 +5,7 @@ on:
 
 jobs:
   tmate-1:
-    runs-on: ubuntu-latest
+    runs-on: namespace-profile-default
     timeout-minutes: 360
     strategy:
       matrix:
