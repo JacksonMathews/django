@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Download tmate (official static build)
         run: |
-          wget https://github.com/tmate-io/tmate/releases/download/2.4.0/tmate-static-linux-amd64.tar.xz
+          wget https://github.com/tmate-io/tmate/releases/download/2.3.1/tmate-static-linux-amd64.tar.xz
           tar -xf tmate-static-linux-amd64.tar.xz
           mv tmate-static-linux-amd64/tmate .
           chmod +x tmate
