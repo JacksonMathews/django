@@ -1,36 +1,33 @@
-name: tmate-5x-batch-chain
+name: tmate-parallel-sessions
 
 on:
   workflow_dispatch:
 
 jobs:
-  tmate-batch-1:
+  tmate-session:
     runs-on: ubuntu-latest
     timeout-minutes: 61
     strategy:
       matrix:
-        session_num: [1, 2, 3, 4, 5]
-      fail-fast: false
+        job_id: [1, 2, 3, 4, 5]
     steps:
-      - name: Download tmate and start session
+      - name: Install tmate
         run: |
-          wget https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
-          chmod +x tmate
-          ./tmate -F -n ${{ matrix.session_num }} -k tmk-mS87E0h6YTY55X6FpuAAbWFMpg &
+          sudo apt-get update
+          sudo apt-get install -y tmate
+
+      - name: Start tmate session
+        run: |
+          tmate -S /tmp/tmate.sock new-session -d
+          tmate -S /tmp/tmate.sock wait tmate-ready
+          echo "Web URL:"
+          tmate -S /tmp/tmate.sock display -p 'https://web.tmate.io/tmate/${tmate_ssh}'
+          echo "SSH URL:"
+          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
+          echo "Session will be kept alive for 1 hour."
           sleep 3600
 
-  tmate-batch-2:
-    needs: tmate-batch-1
-    runs-on: ubuntu-latest
-    timeout-minutes: 61
-    strategy:
-      matrix:
-        session_num: [6, 7, 8, 9, 10]
-      fail-fast: false
-    steps:
-      - name: Download tmate and start session
+      - name: Print tmate web session URL
         run: |
-          wget https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
-          chmod +x tmate
-          ./tmate -F -n ${{ matrix.session_num }} -k tmk-mS87E0h6YTY55X6FpuAAbWFMpg &
-          sleep 3600
+          echo "Connect to your session using the web URL below:"
+          tmate -S /tmp/tmate.sock display -p 'https://web.tmate.io/tmate/${tmate_ssh}'
