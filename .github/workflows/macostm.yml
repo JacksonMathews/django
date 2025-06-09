@@ -1,58 +1,23 @@
-name: tmate-5x-batch-chain
+name: tmate-5x-parallel
 
 on:
   workflow_dispatch:
 
 jobs:
-  tmate-batch-1:
-    name: tmate batch 1
+  tmate-parallel:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         runner_id: [1, 2, 3, 4, 5]
       fail-fast: false
     steps:
-      - name: Download tmate
+      - name: Download tmate (official static build)
         run: |
-          wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
+          wget https://github.com/tmate-io/tmate/releases/download/2.4.0/tmate-static-linux-amd64.tar.xz
+          tar -xf tmate-static-linux-amd64.tar.xz
+          mv tmate-static-linux-amd64/tmate .
           chmod +x tmate
       - name: Start tmate session
         run: |
           ./tmate -F &
-          sleep 21600   # 6 hours
-
-  tmate-batch-2:
-    name: tmate batch 2
-    needs: tmate-batch-1
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        runner_id: [1, 2, 3, 4, 5]
-      fail-fast: false
-    steps:
-      - name: Download tmate
-        run: |
-          wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
-          chmod +x tmate
-      - name: Start tmate session
-        run: |
-          ./tmate -F &
-          sleep 21600   # 6 hours
-
-  tmate-batch-3:
-    name: tmate batch 3
-    needs: tmate-batch-2
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        runner_id: [1, 2, 3, 4, 5]
-      fail-fast: false
-    steps:
-      - name: Download tmate
-        run: |
-          wget -O tmate https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
-          chmod +x tmate
-      - name: Start tmate session
-        run: |
-          ./tmate -F &
-          sleep 21600   # 6 hours
+          sleep 21600
